@@ -56,13 +56,13 @@ const createScene = function () {
     floorMeshes: [ground],
   });
 
-  const featureManager = xrPromise.baseExperience.featuresManager;
-  featureManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
-    xrInput: xrHelper.input,
-  });
-
-
+  
   return xrPromise.then((xrExperience) => {
+    const fm = xrExperience.baseExperience.featureManager;
+    fm.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
+      xrInput: xrExperience.input,
+    });
+
     console.log("Done, WebXR is enabled.");
     return scene;
   });
