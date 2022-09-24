@@ -27,7 +27,7 @@ const createScene = function () {
 
   const box = BABYLON.MeshBuilder.CreateBox("box", {});
   box.position.x = 0;
-  box.position.y = 0;
+  box.position.y = 1/2;
 
   const boxMaterial = new BABYLON.StandardMaterial("material", scene);
   boxMaterial.diffuseColor = BABYLON.Color3.Random();
@@ -55,6 +55,12 @@ const createScene = function () {
   const xrPromise = scene.createDefaultXRExperienceAsync({
     floorMeshes: [ground],
   });
+
+  const featureManager = xrPromise.baseExperience.featuresManager;
+  featureManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
+    xrInput: xrHelper.input,
+  });
+
 
   return xrPromise.then((xrExperience) => {
     console.log("Done, WebXR is enabled.");
