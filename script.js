@@ -1,8 +1,8 @@
-const canvas = document.getElementById("renderCanvas");
-const engine = new BABYLON.Engine(canvas, true);
+var canvas = document.getElementById("renderCanvas");
+var engine = new BABYLON.Engine(canvas, true);
 
-const createScene = function () {
-  const scene = new BABYLON.Scene(engine);
+var createScene = async function () {
+  var scene = new BABYLON.Scene(engine);
   scene.clearColor = new BABYLON.Color3.Black();
 
   const alpha = Math.PI / 4;
@@ -52,20 +52,12 @@ const createScene = function () {
     height: 4,
   });
 
-  const xrPromise = scene.createDefaultXRExperienceAsync({
+  var xrPromise = await scene.createDefaultXRExperienceAsync({
     floorMeshes: [ground],
   });
-
+  var fm = xrPromise.baseExperience.featureManager;
   
-  return xrPromise.then((xrExperience) => {
-    const fm = xrExperience.baseExperience.featureManager;
-    fm.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
-      xrInput: xrExperience.input,
-    });
-
-    console.log("Done, WebXR is enabled.");
-    return scene;
-  });
+  return scene;
 };
 
 createScene().then((sceneToRender) => {
