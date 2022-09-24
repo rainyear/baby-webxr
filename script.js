@@ -1,27 +1,67 @@
-/*
-This is your site JavaScript code - you can add interactivity and carry out processing
-- Initially the JS writes a message to the console, and moves a button you can add from the README
-*/
+const canvas = document.getElementById("renderCanvas");
+const engine = new BABYLON.Engine(canvas, true);
 
-// Print a message in the browser's dev tools console each time the page loads
-// Use your menus or right-click / control-click and choose "Inspect" > "Console"
-console.log("Hello 🌎");
+const createScene = function () {
+  const scene = new BABYLON.Scene(engine);
+  scene.clearColor = new BABYLON.Color3.Black();
 
-/* 
-Make the "Click me!" button move when the visitor clicks it:
-- First add the button to the page by following the "Next steps" in the README
-*/
-const btn = document.querySelector("button"); // Get the button from the page
-// Detect clicks on the button
-if (btn) {
-  btn.onclick = function() {
-    // The JS works in conjunction with the 'dipped' code in style.css
-    btn.classList.toggle("dipped");
-  };
-}
+  const alpha = Math.PI / 4;
+  const beta = Math.PI / 3;
+  const radius = 8;
+  const target = new BABYLON.Vector3(0, 0, 0);
 
-// This is a single line JS comment
-/*
-This is a comment that can span multiple lines 
-- use comments to make your own notes!
-*/
+  const camera = new BABYLON.ArcRotateCamera(
+    "Camera",
+    alpha,
+    beta,
+    radius,
+    target,
+    scene
+  );
+  camera.attachControl(canvas, true);
+
+  const light = new BABYLON.HemisphericLight(
+    "light",
+    new BABYLON.Vector3(1, 1, 0)
+  );
+
+  const box = BABYLON.MeshBuilder.CreateBox("box", {});
+  box.position.x = 0;
+  box.position.y = 0;
+
+  const boxMaterial = new BABYLON.StandardMaterial("material", scene);
+  boxMaterial.diffuseColor = BABYLON.Color3.Random();
+  box.material = boxMaterial;
+
+  box.actionManager = new BABYLON.ActionManager(scene);
+  box.actionManager.registerAction(
+    new BABYLON.ExecuteCodeAction(
+      BABYLON.ActionManager.OnPickTrigger,
+      function (evt) {
+        const sourceBox = evt.meshUnderPointer;
+        sourceBox.position.x += 0.1;
+        sourceBox.position.y += 0.1;
+
+        boxMaterial.diffuseColor = BABYLON.Color3.Random();
+      }
+    )
+  );
+
+  const ground = BABYLON.MeshBuilder.CreateGround("ground", {
+    width: 4,
+    height: 4,
+  });
+
+  const xrPromise = scene.createDefaultXRExperienceAsync({
+    floorMeshes: [ground],
+  });
+
+  return xrPromise.then((xrExperience) => {
+    console.log("Done, WebXR is enabled.");
+    return scene;
+  });
+};
+
+createScene().then((sceneToRender) => {
+  engine.runRenderLoop(() => sceneToRender.render());
+});
