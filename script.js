@@ -52,10 +52,15 @@ var createScene = async function () {
     height: 4,
   });
 
-  var xrPromise = await scene.createDefaultXRExperienceAsync({
-    floorMeshes: [ground],
+  const xr = await scene.createDefaultXRExperienceAsync();
+  xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
+      xrInput: xr.input,
+      jointMeshes: {
+          enablePhysics: true
+      }
   });
-  var fm = xrPromise.baseExperience.featureManager;
+
+
   
   return scene;
 };
