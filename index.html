@@ -67,9 +67,11 @@
         width: 4,
         height: 4,
       });
+      
+      const env = scene.createDefaultEnvironment();
 
       const xrPromise = scene.createDefaultXRExperienceAsync({
-        floorMeshes: [ground],
+        floorMeshes: [env.ground],
       });
 
       return xrPromise.then((xrExperience) => {
