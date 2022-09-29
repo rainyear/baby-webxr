@@ -8,6 +8,8 @@ const SHPERE_SIZE = 1.5;
 
 const onRespObservable = new BABYLON.Observable();
 
+var isTriggered = false;
+
 // 创建场景内容
 var createScene = async function () {
   // VR 场景（环境） 基于 Babylon 引擎
@@ -18,11 +20,7 @@ var createScene = async function () {
   await Ammo();
 
   scene.enablePhysics(undefined, new BABYLON.AmmoJSPlugin());
-
-  const alpha = Math.PI / 4;
-  const beta = Math.PI / 3;
-  const radius = 8;
-  const target = new BABYLON.Vector3(0, 0, 0);
+  // scene.debugLayer.show();
 
   const isHandTrackingFeatureSupported = await BABYLON.WebXRSessionManager.IsSessionSupportedAsync("immersive-vr");
   if (!isHandTrackingFeatureSupported){
@@ -89,6 +87,7 @@ var createScene = async function () {
     xrInput: xr.input,
     floorMeshes:[ground]
   })
+  /*
   xr.input.onControllerAddedObservable.add((controller) => {
     controller.onMotionControllerInitObservable.add((motionController) => {
       console.log(motionController);
@@ -98,14 +97,13 @@ var createScene = async function () {
       triggerComponent.onButtonStateChangedObservable.add(() => {
       if (triggerComponent.pressed) {
         console.log("Trigger");
-        onRespObservable.notifyObservers("pause");
-      }else{
-        console.log("Other")
-        onRespObservable.notifyObservers("resume");
+        isTriggered = !isTriggered;
+        onRespObservable.notifyObservers();
       }
-});
     });
   });
+  });
+  */
 
   // Handtracking
   if (isHandTrackingFeatureSupported && isQuest) {
@@ -142,12 +140,14 @@ const addGround = function(scene){
     height: 40,
   });
   // 增加 纹理材质
+  /*
   const floorMat = new BABYLON.StandardMaterial("floorMat");
   floorMat.diffuseTexture = new BABYLON.Texture("textures/floor.png");
   floorMat.diffuseTexture.uScale = 5.0;
   floorMat.diffuseTexture.vScale = 5.0;
 
   ground.material = floorMat;
+  */
 
   ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 });
   return ground;
@@ -157,6 +157,12 @@ const fovExp = function(scene, distance){
   const H = 15;
   const D = 0.02;
   const FRAME_RATE = 60;
+  const State = {
+    wait: 0,
+    paused: 1,
+    animating: 2
+  }
+  var _state = State.wait;
 
   const LINE_OPTS = {height: H, diameter: D, updatable: true};
 
@@ -185,22 +191,57 @@ const fovExp = function(scene, distance){
   vLineRight.animations.push(lineAnimation);
 
   const uiManager = new BABYLON.GUI.GUI3DManager(scene);
-  var button = new BABYLON.GUI.HolographicButton("start");
-  button.text = '开始测试';
-  uiManager.addControl(button);
-  button.position.z = 1.5;
-  button.position.y = 1.5;
+  var panel = new BABYLON.GUI.StackPanel3D();
+  uiManager.addControl(panel);
+  panel.position.z = 3;
+  panel.position.y = 1.5;
+
+
+  var button = new BABYLON.GUI.Button3D("start");
+  panel.addControl(button);
+  var text = new BABYLON.GUI.TextBlock();
+  text.text = '开始测试';
+  text.color = "white";
+  text.fontSize = 24; 
+  button.content = text;
+
+  var resText = new BABYLON.GUI.TextBlock();
+  resText.text = '0.00';
+  resText.color = "white";
+  resText.fontSize = 40; 
+ 
+  var slate = new BABYLON.GUI.HolographicSlate("result");
+  slate.title = "FOV";
+  slate.minDimensions = new BABYLON.Vector2(0.1, 0.1);
+  slate.dimensions = new BABYLON.Vector2(0.5, 0.5);
+  slate.titleBarHeight = 0.075;
+  slate.content = resText;
+  uiManager.addControl(slate);
+  slate.position = new BABYLON.Vector3(-1, 1, 1);
+
 
   button.onPointerUpObservable.add(()=>{
-    button.isVisible = false;
-    const vLineRightAni = scene.beginAnimation(vLineRight, 0, FRAME_RATE * 10);
-    onRespObservable.add((signal) => {
-      if (signal == "pause") {
-        vLineRightAni.pause();
-        console.log("Pos: ", vLineRight.position.x);
-      } else if (signal == "resume") {
-        vLineRightAni.restart();
-      }
-    })
+    var vLineRightAni;
+    if (_state == State.wait) {
+      vLineRightAni = scene.beginAnimation(vLineRight, 0, FRAME_RATE * 10);
+      _state = State.animating;
+
+      onRespObservable.add((s)=>{
+        if (s == 'pause') {
+          vLineRightAni.pause();
+          resText.text = `${vLineRight.position.x.toFixed(2)}`;
+        } else {
+          vLineRightAni.restart();
+        }
+      });
+
+    } else if (_state == State.animating) {
+      console.log("Pos: ", vLineRight.position.x);
+      _state = State.paused;
+      onRespObservable.notifyObservers("pause");
+    } else if (_state == State.paused) {
+      _state = State.animating;
+      onRespObservable.notifyObservers("restart");
+    };
   });
 }
