@@ -3,6 +3,9 @@ var canvas = document.getElementById("renderCanvas");
 // Babylon 渲染引擎 -> Canvas
 var engine = new BABYLON.Engine(canvas, true);
 
+var isQuest = false;
+const SHPERE_SIZE = 1.5;
+
 // 创建场景内容
 var createScene = async function () {
   // VR 场景（环境） 基于 Babylon 引擎
@@ -11,6 +14,7 @@ var createScene = async function () {
   scene.clearColor = new BABYLON.Color3.Black();
   // 设置物理引擎
   await Ammo();
+
   scene.enablePhysics(undefined, new BABYLON.AmmoJSPlugin());
 
   const alpha = Math.PI / 4;
@@ -18,9 +22,9 @@ var createScene = async function () {
   const radius = 8;
   const target = new BABYLON.Vector3(0, 0, 0);
 
-  const isHandTrackingFeatureSupported = await BABYLON.WebXRSessionManager.IsSessionSupportedAsync("hand-tracking");
+  const isHandTrackingFeatureSupported = await BABYLON.WebXRSessionManager.IsSessionSupportedAsync("immersive-vr");
   if (!isHandTrackingFeatureSupported){
-    alert("Sorry Hand tracking not supported");
+    alert("Sorry Immersive-VR not support!");
   }
 
   // 头部 Camera
@@ -40,12 +44,14 @@ var createScene = async function () {
     "light",
     new BABYLON.Vector3(1, 1, 0)
   );
+  // Skybox
+  addSkyBox(scene);
 
   // 创建物体
-  const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.5, segments: 32 }, scene);
-  sphere.position.y = 1.1;
+  const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: SHPERE_SIZE, segments: 32 }, scene);
+  sphere.position.y = SHPERE_SIZE;
   // 设置物理属性
-  sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0.5})
+  sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass: SHPERE_SIZE});
 
 
 
@@ -102,7 +108,7 @@ var createScene = async function () {
     - Walking Locomotion 
   */
 
-  if (isHandTrackingFeatureSupported) {
+  if (isHandTrackingFeatureSupported && isQuest) {
     const xrHandFeature = xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
       xrInput: xr.input,
       enablePhysics: true
@@ -114,3 +120,14 @@ var createScene = async function () {
 createScene().then((sceneToRender) => {
   engine.runRenderLoop(() => sceneToRender.render());
 });
+
+const addSkyBox = function(scene){
+  const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:150}, scene);
+  const skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+  skyboxMaterial.backFaceCulling = false;
+  skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("textures/skybox", scene);
+  skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+  skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+  skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+  skybox.material = skyboxMaterial;
+}
