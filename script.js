@@ -99,13 +99,7 @@ var createScene = async function () {
   // Exps
   fovExp(scene, 5);
 
-  const uiManager = new BABYLON.GUI.GUI3DManager(scene);
-  var button = new BABYLON.GUI.HolographicButton("start");
-  button.text = 'Start';
-  uiManager.addControl(button);
-  button.position.z = -0.5;
-  button.position.y = 1.5;
-  
+ 
 
   return scene;
 };
@@ -159,18 +153,28 @@ const fovExp = function(scene, distance){
   const vLineRight = vLineLeft.clone("vLineRight");
   vLineRight.position.x = D;
 
+  const lineAnimation = new BABYLON.Animation("toLeft", "position.x", 60, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+  const keyFrames = [];
+  keyFrames.push({
+    frame: 0,
+    value: 0
+  });
+  keyFrames.push({
+    frame: 600,
+    value: 10
+  })
+  lineAnimation.setKeys(keyFrames);
+  vLineRight.animations.push(lineAnimation);
 
+  const uiManager = new BABYLON.GUI.GUI3DManager(scene);
+  var button = new BABYLON.GUI.HolographicButton("start");
+  button.text = '开始测试';
+  uiManager.addControl(button);
+  button.position.z = 1.5;
+  button.position.y = 1.5;
 
-  /*
-  const vLineRight = BABYLON.MeshBuilder.CreateCylinder("cylinder", LINE_OPTS);//vLine.clone("vLineRight");
-  vLineRight.material = mat;
-  vLineRight.position.x = - D * 2;
-  vLineRight.position.z = distance;
-  */
-
-  // vLine.position.y = H / 2;
-  // vLine.position.x = D;
-
-  // vLineRight.material = mat;
-  // vLineRight.x = 1;
+  button.onPointerUpObservable.add(()=>{
+    button.isVisible = false;
+    scene.beginAnimation(vLineRight, 0, 600);
+  });
 }
