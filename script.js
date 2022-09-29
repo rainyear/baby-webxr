@@ -6,6 +6,8 @@ var engine = new BABYLON.Engine(canvas, true);
 var isQuest = false;
 const SHPERE_SIZE = 1.5;
 
+const onRespObservable = new BABYLON.Observable();
+
 // 创建场景内容
 var createScene = async function () {
   // VR 场景（环境） 基于 Babylon 引擎
@@ -87,6 +89,23 @@ var createScene = async function () {
     xrInput: xr.input,
     floorMeshes:[ground]
   })
+  xr.input.onControllerAddedObservable.add((controller) => {
+    controller.onMotionControllerInitObservable.add((motionController) => {
+      console.log(motionController);
+
+      const xr_ids = motionController.getComponentIds();
+      let triggerComponent = motionController.getComponent(xr_ids[0]);//xr-standard-trigger
+      triggerComponent.onButtonStateChangedObservable.add(() => {
+      if (triggerComponent.pressed) {
+        console.log("Trigger");
+        onRespObservable.notifyObservers("pause");
+      }else{
+        console.log("Other")
+        onRespObservable.notifyObservers("resume");
+      }
+});
+    });
+  });
 
   // Handtracking
   if (isHandTrackingFeatureSupported && isQuest) {
@@ -98,8 +117,6 @@ var createScene = async function () {
 
   // Exps
   fovExp(scene, 5);
-
- 
 
   return scene;
 };
@@ -139,6 +156,7 @@ const addGround = function(scene){
 const fovExp = function(scene, distance){
   const H = 15;
   const D = 0.02;
+  const FRAME_RATE = 60;
 
   const LINE_OPTS = {height: H, diameter: D, updatable: true};
 
@@ -153,14 +171,14 @@ const fovExp = function(scene, distance){
   const vLineRight = vLineLeft.clone("vLineRight");
   vLineRight.position.x = D;
 
-  const lineAnimation = new BABYLON.Animation("toLeft", "position.x", 60, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+  const lineAnimation = new BABYLON.Animation("toLeft", "position.x", FRAME_RATE, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
   const keyFrames = [];
   keyFrames.push({
     frame: 0,
     value: 0
   });
   keyFrames.push({
-    frame: 600,
+    frame: FRAME_RATE * 10,
     value: 10
   })
   lineAnimation.setKeys(keyFrames);
@@ -175,6 +193,14 @@ const fovExp = function(scene, distance){
 
   button.onPointerUpObservable.add(()=>{
     button.isVisible = false;
-    scene.beginAnimation(vLineRight, 0, 600);
+    const vLineRightAni = scene.beginAnimation(vLineRight, 0, FRAME_RATE * 10);
+    onRespObservable.add((signal) => {
+      if (signal == "pause") {
+        vLineRightAni.pause();
+        console.log("Pos: ", vLineRight.position.x);
+      } else if (signal == "resume") {
+        vLineRightAni.restart();
+      }
+    })
   });
 }
