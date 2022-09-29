@@ -29,9 +29,12 @@ var createScene = async function () {
 
   // 头部 Camera
 
+  /*
   var camera = new BABYLON.FreeCamera("mainCamera", new BABYLON.Vector3(0, 0, 0), scene);
   camera.setTarget(BABYLON.Vector3.Zero());
   camera.attachControl(canvas, true);
+  */
+
   // setupCameraForCollisions(camera);
   // camera.setTarget(target);
 
@@ -102,6 +105,7 @@ var createScene = async function () {
   const xr = await scene.createDefaultXRExperienceAsync({
     floorMeshes: [ground]
   });
+  xr.baseExperience.camera.position = new BABYLON.Vector3(0,0,0);
 
 
 
@@ -153,7 +157,7 @@ const addSkyBox = function(scene){
 
 const fovExp = function(scene, distance){
   const H = 15;
-  const D = 0.05;
+  const D = 0.02;
 
   const LINE_OPTS = {height: H, diameter: D, updatable: true};
 
