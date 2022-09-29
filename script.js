@@ -48,11 +48,13 @@ var createScene = async function () {
   addSkyBox(scene);
 
   // 创建物体
+  /*
   const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: SHPERE_SIZE, segments: 32 }, scene);
   sphere.position = new BABYLON.Vector3(0, SHPERE_SIZE, 0);
 
   // 设置物理属性
   sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass: SHPERE_SIZE});
+  */
 
 
 
@@ -84,6 +86,7 @@ var createScene = async function () {
     width: 40,
     height: 40,
   });
+  // 增加 纹理材质
   const floorMat = new BABYLON.StandardMaterial("floorMat");
   floorMat.diffuseTexture = new BABYLON.Texture("textures/floor.png");
   ground.material = floorMat;
@@ -114,17 +117,26 @@ var createScene = async function () {
     - Movement - 移动
     - Walking Locomotion 
   */
+  // Controller - Point & Grab
+  // TODO: https://playground.babylonjs.com/#1FTUSC#37
+
+  // Teleportation
   xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.TELEPORTATION, "stable", {
     xrInput: xr.input,
     floorMeshes:[ground]
   })
 
+  // Handtracking
   if (isHandTrackingFeatureSupported && isQuest) {
     const xrHandFeature = xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
       xrInput: xr.input,
       enablePhysics: true
     });
   }
+
+  // Exps
+  fovExp();
+
   return scene;
 };
 
@@ -141,4 +153,30 @@ const addSkyBox = function(scene){
   skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
   skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
   skybox.material = skyboxMaterial;
+}
+
+const fovExp = function(scene){
+  const H = 15;
+  const D = 0.05;
+
+  const LINE_OPTS = {height: H, diameter: D, updatable: true};
+
+  const mat = new BABYLON.StandardMaterial("line", scene);
+  mat.diffuseColor = BABYLON.Color3.Red();
+
+  const vLineLeft = BABYLON.MeshBuilder.CreateCylinder("cylinder", LINE_OPTS);
+  const vLineRight = BABYLON.MeshBuilder.CreateCylinder("cylinder", LINE_OPTS);//vLine.clone("vLineRight");
+  vLineLeft.material = mat;
+  vLineLeft.position.x = D * 2;
+  vLineLeft.position.z = 1;
+
+  vLineRight.material = mat;
+  vLineRight.position.x = - D * 2;
+  vLineRight.position.z = 1;
+
+  // vLine.position.y = H / 2;
+  // vLine.position.x = D;
+
+  // vLineRight.material = mat;
+  // vLineRight.x = 1;
 }
