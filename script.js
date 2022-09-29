@@ -99,6 +99,8 @@ var createScene = async function () {
     floorMeshes: [env.ground]
   });
 
+
+
   // Feature Manager - 特性管理
   // https://doc.babylonjs.com/features/featuresDeepDive/webXR/webXRFeaturesManager
   /*
@@ -107,6 +109,10 @@ var createScene = async function () {
     - Movement - 移动
     - Walking Locomotion 
   */
+  xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.TELEPORTATION, "stable", {
+    xrInput: xr.input,
+    floorMeshes:[ground]
+  })
 
   if (isHandTrackingFeatureSupported && isQuest) {
     const xrHandFeature = xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
