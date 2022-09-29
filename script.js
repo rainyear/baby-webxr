@@ -207,7 +207,7 @@ const fovExp = function(scene, distance){
   resText.fontSize = 40; 
  
   var slate = new BABYLON.GUI.HolographicSlate("result");
-  slate.title = "FOV";
+  slate.title = "R-FOV";
   slate.minDimensions = new BABYLON.Vector2(0.1, 0.1);
   slate.dimensions = new BABYLON.Vector2(0.5, 0.5);
   slate.titleBarHeight = 0.075;
