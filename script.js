@@ -20,7 +20,7 @@ var createScene = async function () {
   await Ammo();
 
   scene.enablePhysics(undefined, new BABYLON.AmmoJSPlugin());
-  // scene.debugLayer.show();
+  scene.debugLayer.show();
 
   const isHandTrackingFeatureSupported = await BABYLON.WebXRSessionManager.IsSessionSupportedAsync("immersive-vr");
   if (!isHandTrackingFeatureSupported){
@@ -191,19 +191,15 @@ const fovExp = function(scene, distance){
   vLineRight.animations.push(lineAnimation);
 
   const uiManager = new BABYLON.GUI.GUI3DManager(scene);
-  var panel = new BABYLON.GUI.StackPanel3D();
-  uiManager.addControl(panel);
-  panel.position.z = 3;
-  panel.position.y = 1.5;
 
-
-  var button = new BABYLON.GUI.Button3D("start");
-  panel.addControl(button);
+  var button = new BABYLON.GUI.HolographicButton("start");
+  uiManager.addControl(button);
   var text = new BABYLON.GUI.TextBlock();
   text.text = '开始测试';
   text.color = "white";
   text.fontSize = 24; 
   button.content = text;
+  button.position = new BABYLON.Vector3(0, 1, 3);
 
   var resText = new BABYLON.GUI.TextBlock();
   resText.text = '0.00';
@@ -229,7 +225,8 @@ const fovExp = function(scene, distance){
       onRespObservable.add((s)=>{
         if (s == 'pause') {
           vLineRightAni.pause();
-          resText.text = `${vLineRight.position.x.toFixed(2)}`;
+          let rightFov = Math.atan(vLineRight.position.x / distance) / Math.PI * 180;
+          resText.text = `${rightFov.toFixed(2)}°`;
         } else {
           vLineRightAni.restart();
         }
