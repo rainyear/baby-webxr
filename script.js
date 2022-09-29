@@ -55,45 +55,7 @@ var createScene = async function () {
   sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass: SHPERE_SIZE});
   */
 
-
-
-  /*
-  const box = BABYLON.MeshBuilder.CreateBox("box", {});
-  box.position.x = 0;
-  box.position.y = 1/2;
-
-  const boxMaterial = new BABYLON.StandardMaterial("material", scene);
-  boxMaterial.diffuseColor = BABYLON.Color3.Random();
-  box.material = boxMaterial;
-
-  box.actionManager = new BABYLON.ActionManager(scene);
-  box.actionManager.registerAction(
-    new BABYLON.ExecuteCodeAction(
-      BABYLON.ActionManager.OnPickTrigger,
-      function (evt) {
-        const sourceBox = evt.meshUnderPointer;
-        sourceBox.position.x += 0.1;
-        sourceBox.position.y += 0.1;
-
-        boxMaterial.diffuseColor = BABYLON.Color3.Random();
-      }
-    )
-  );
-  */
-  // 创建地面
-  const ground = BABYLON.MeshBuilder.CreateGround("ground", {
-    width: 40,
-    height: 40,
-  });
-  // 增加 纹理材质
-  const floorMat = new BABYLON.StandardMaterial("floorMat");
-  floorMat.diffuseTexture = new BABYLON.Texture("textures/floor.png");
-  ground.material = floorMat;
-
-  ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 });
-
-  // 场景中创建默认环境 Default Environment
-  // const env = scene.createDefaultEnvironment();
+  const ground = addGround(scene);
 
   // 创建 XR 体验
   /*
@@ -135,7 +97,15 @@ var createScene = async function () {
   }
 
   // Exps
-  fovExp(scene, 1.5);
+  fovExp(scene, 5);
+
+  const uiManager = new BABYLON.GUI.GUI3DManager(scene);
+  var button = new BABYLON.GUI.HolographicButton("start");
+  button.text = 'Start';
+  uiManager.addControl(button);
+  button.position.z = -0.5;
+  button.position.y = 1.5;
+  
 
   return scene;
 };
@@ -153,6 +123,23 @@ const addSkyBox = function(scene){
   skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
   skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
   skybox.material = skyboxMaterial;
+}
+const addGround = function(scene){
+  // 创建地面
+  const ground = BABYLON.MeshBuilder.CreateGround("ground", {
+    width: 40,
+    height: 40,
+  });
+  // 增加 纹理材质
+  const floorMat = new BABYLON.StandardMaterial("floorMat");
+  floorMat.diffuseTexture = new BABYLON.Texture("textures/floor.png");
+  floorMat.diffuseTexture.uScale = 5.0;
+  floorMat.diffuseTexture.vScale = 5.0;
+
+  ground.material = floorMat;
+
+  ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 });
+  return ground;
 }
 
 const fovExp = function(scene, distance){
