@@ -49,7 +49,8 @@ var createScene = async function () {
 
   // 创建物体
   const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: SHPERE_SIZE, segments: 32 }, scene);
-  sphere.position.y = SHPERE_SIZE;
+  sphere.position = new BABYLON.Vector3(0, SHPERE_SIZE, 0);
+
   // 设置物理属性
   sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass: SHPERE_SIZE});
 
@@ -83,10 +84,14 @@ var createScene = async function () {
     width: 40,
     height: 40,
   });
+  const floorMat = new BABYLON.StandardMaterial("floorMat");
+  floorMat.diffuseTexture = new BABYLON.Texture("textures/floor.png");
+  ground.material = floorMat;
+
   ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 });
 
   // 场景中创建默认环境 Default Environment
-  const env = scene.createDefaultEnvironment();
+  // const env = scene.createDefaultEnvironment();
 
   // 创建 XR 体验
   /*
