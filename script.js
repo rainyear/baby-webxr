@@ -28,15 +28,11 @@ var createScene = async function () {
   }
 
   // 头部 Camera
-  const camera = new BABYLON.ArcRotateCamera(
-    "Camera",
-    alpha,
-    beta,
-    radius,
-    target,
-    scene
-  );
+
+  var camera = new BABYLON.FreeCamera("mainCamera", new BABYLON.Vector3(0, 0, 0), scene);
+  camera.setTarget(BABYLON.Vector3.Zero());
   camera.attachControl(canvas, true);
+  // setupCameraForCollisions(camera);
   // camera.setTarget(target);
 
   // 环境光
@@ -135,7 +131,7 @@ var createScene = async function () {
   }
 
   // Exps
-  fovExp();
+  fovExp(scene, 1.5);
 
   return scene;
 };
@@ -155,7 +151,7 @@ const addSkyBox = function(scene){
   skybox.material = skyboxMaterial;
 }
 
-const fovExp = function(scene){
+const fovExp = function(scene, distance){
   const H = 15;
   const D = 0.05;
 
@@ -164,15 +160,22 @@ const fovExp = function(scene){
   const mat = new BABYLON.StandardMaterial("line", scene);
   mat.diffuseColor = BABYLON.Color3.Red();
 
-  const vLineLeft = BABYLON.MeshBuilder.CreateCylinder("cylinder", LINE_OPTS);
-  const vLineRight = BABYLON.MeshBuilder.CreateCylinder("cylinder", LINE_OPTS);//vLine.clone("vLineRight");
+  const vLineLeft = BABYLON.MeshBuilder.CreateCylinder("vLineLeft", LINE_OPTS, scene);
   vLineLeft.material = mat;
-  vLineLeft.position.x = D * 2;
-  vLineLeft.position.z = 1;
+  vLineLeft.position.z = distance;
+  vLineLeft.position.x = -D;
 
+  const vLineRight = vLineLeft.clone("vLineRight");
+  vLineRight.position.x = D;
+
+
+
+  /*
+  const vLineRight = BABYLON.MeshBuilder.CreateCylinder("cylinder", LINE_OPTS);//vLine.clone("vLineRight");
   vLineRight.material = mat;
   vLineRight.position.x = - D * 2;
-  vLineRight.position.z = 1;
+  vLineRight.position.z = distance;
+  */
 
   // vLine.position.y = H / 2;
   // vLine.position.x = D;
