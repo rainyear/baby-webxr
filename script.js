@@ -96,7 +96,7 @@ var createScene = async function () {
     - `renderTarget`
   */
   const xr = await scene.createDefaultXRExperienceAsync({
-    floorMeshes: [env.ground]
+    floorMeshes: [ground]
   });
 
 
