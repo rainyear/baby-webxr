@@ -172,10 +172,10 @@ const fovExp = function(scene, distance){
   const vLineLeft = BABYLON.MeshBuilder.CreateCylinder("vLineLeft", LINE_OPTS, scene);
   vLineLeft.material = mat;
   vLineLeft.position.z = distance;
-  vLineLeft.position.x = -D;
+  // vLineLeft.position.x = 0;
 
   const vLineRight = vLineLeft.clone("vLineRight");
-  vLineRight.position.x = D;
+  // vLineRight.position.x = 0;
 
   const lineAnimation = new BABYLON.Animation("toLeft", "position.x", FRAME_RATE, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
   const keyFrames = [];
@@ -194,18 +194,28 @@ const fovExp = function(scene, distance){
 
   var button = new BABYLON.GUI.HolographicButton("start");
   uiManager.addControl(button);
+
   var text = new BABYLON.GUI.TextBlock();
   text.text = '开始测试';
   text.color = "white";
   text.fontSize = 24; 
   button.content = text;
-  button.position = new BABYLON.Vector3(0, 1, 3);
+  button.position = new BABYLON.Vector3(0.5, 1, distance);
+  
+  var leftBtn = new BABYLON.GUI.HolographicButton("leftStart");
+  uiManager.addControl(leftBtn);
+  leftBtn.text = "Left-FOV";
+  leftBtn.position = new BABYLON.Vector3(-0.5, 1, distance);
 
   var resText = new BABYLON.GUI.TextBlock();
-  resText.text = '0.00';
+  resText.text = 'R-FOV: 0.00';
   resText.color = "white";
-  resText.fontSize = 40; 
- 
+  resText.fontSize = 40;
+  var lesText = new BABYLON.GUI.TextBlock();
+  lesText.text = 'L-FOV: 0.00';
+  lesText.color = "white";
+  lesText.fontSize = 40;
+
   var slate = new BABYLON.GUI.HolographicSlate("result");
   slate.title = "R-FOV";
   slate.minDimensions = new BABYLON.Vector2(0.1, 0.1);
@@ -221,14 +231,17 @@ const fovExp = function(scene, distance){
     if (_state == State.wait) {
       vLineRightAni = scene.beginAnimation(vLineRight, 0, FRAME_RATE * 10);
       _state = State.animating;
+      text.text = "点击停止";
 
       onRespObservable.add((s)=>{
         if (s == 'pause') {
           vLineRightAni.pause();
           let rightFov = Math.atan(vLineRight.position.x / distance) / Math.PI * 180;
-          resText.text = `${rightFov.toFixed(2)}°`;
+          resText.text = `R-FOV: ${rightFov.toFixed(2)}°`;
+          text.text = "继续"
         } else {
           vLineRightAni.restart();
+          text.text = "点击停止";
         }
       });
 
