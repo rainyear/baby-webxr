@@ -2,7 +2,7 @@
 
 <head>
   <meta charSet="utf-8" />
-  <title>Babylon.js VR Sample</title>
+  <title>Babylon.js VR Experience</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
   <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
   <script src="https://preview.babylonjs.com/ammo.js"></script>
@@ -18,10 +18,19 @@
   <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
   <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
   <style>
-    body,
+    html,
+    body {
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
     #renderCanvas {
       width: 100%;
       height: 100%;
+      touch-action: none;
     }
   </style>
 </head>
@@ -29,6 +38,29 @@
 <body>
   <canvas id="renderCanvas"></canvas>
 </body>
-<script src="script.js?aaa"></script>
+<script>
+  // Debug layer
+  const enableDebug = function (scene) {
+    // hide/show the Inspector
+    window.addEventListener("keydown", (ev) => {
+      // Shift+Ctrl+Alt+I
+      if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+        if (scene.debugLayer.isVisible()) {
+          scene.debugLayer.hide();
+        } else {
+          scene.debugLayer.show();
+        }
+      }
+    });
+  }
+</script>
+<script src="js/addGround.js"></script>
+<script src="js/addSkybox.js"></script>
+<script src="js/addRoom.js"></script>
+<script src="js/addObjects.js"></script>
+
+<script src="js/expFov.js"></script>
+
+<script src="tutorial.js"></script>
 
 </html>

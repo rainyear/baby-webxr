@@ -18,9 +18,11 @@ var createScene = async function () {
   scene.clearColor = new BABYLON.Color3.Black();
   // 设置物理引擎
   await Ammo();
-
   scene.enablePhysics(undefined, new BABYLON.AmmoJSPlugin());
-  scene.debugLayer.show();
+
+  // TODO:
+  // debug layer
+  // scene.debugLayer.show();
 
   const isHandTrackingFeatureSupported = await BABYLON.WebXRSessionManager.IsSessionSupportedAsync("immersive-vr");
   if (!isHandTrackingFeatureSupported){
@@ -46,6 +48,10 @@ var createScene = async function () {
   // Skybox
   addSkyBox(scene);
 
+  // ::TODO::
+  // addLabEnviron(scene);
+
+
   // 创建物体
   /*
   const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: SHPERE_SIZE, segments: 32 }, scene);
@@ -65,11 +71,15 @@ var createScene = async function () {
     - `renderTarget`
   */
   const xr = await scene.createDefaultXRExperienceAsync({
+    disableTeleportation: true,
     floorMeshes: [ground]
   });
   xr.baseExperience.camera.position = new BABYLON.Vector3(0,0,0);
 
-
+  BABYLON.SceneLoader.ImportMeshAsync("", "scenes/env/", "big_room.glb").then((result)=>{
+    result.meshes[0].position = new BABYLON.Vector3(0,0,0);
+    console.log(result.meshes);
+  })
 
   // Feature Manager - 特性管理
   // https://doc.babylonjs.com/features/featuresDeepDive/webXR/webXRFeaturesManager
@@ -83,10 +93,12 @@ var createScene = async function () {
   // TODO: https://playground.babylonjs.com/#1FTUSC#37
 
   // Teleportation
+  /*
   xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.TELEPORTATION, "stable", {
     xrInput: xr.input,
     floorMeshes:[ground]
   })
+  */
   /*
   xr.input.onControllerAddedObservable.add((controller) => {
     controller.onMotionControllerInitObservable.add((motionController) => {
@@ -106,28 +118,53 @@ var createScene = async function () {
   */
 
   // Handtracking
+  /*
   if (isHandTrackingFeatureSupported && isQuest) {
     const xrHandFeature = xr.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", {
       xrInput: xr.input,
       enablePhysics: true
     });
   }
+  */
 
   // Exps
-  fovExp(scene, 5);
+  // fovExp(scene, 5);
 
   return scene;
 };
 
-createScene().then((sceneToRender) => {
-  engine.runRenderLoop(() => sceneToRender.render());
+createScene().then((scene) => {
+  /*
+  var assetsManager = new BABYLON.AssetsManager(scene);
+  var meshTask = assetsManager.addMeshTask("room task", "", "scenes/env/", "room.glb");
+  meshTask.onSuccess = function (task) {
+    task.loadedMeshes[0].position = BABYLON.Vector3(0, 1, 0);
+    console.log(task.loadedMeshes[0]);
+  }
+  meshTask.onError = function (task, message, exception) {
+    console.log(message, exception);
+  }
+  assetsManager.onFinish = function (tasks){
+    console.log("Finished")
+    engine.runRenderLoop(function () {
+			scene.render();
+		});
+  }
+  assetsManager.load();
+  */
+    // do something with the scene
+    // console.log(scene)
+    engine.runRenderLoop(() => scene.render());
+  // });
+
 });
+
 
 const addSkyBox = function(scene){
   const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:150}, scene);
   const skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
   skyboxMaterial.backFaceCulling = false;
-  skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("textures/skybox", scene);
+  skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("textures/TropicalSunnyDay/TropicalSunnyDay", scene);
   skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
   skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
   skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
