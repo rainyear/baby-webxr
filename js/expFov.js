@@ -69,6 +69,8 @@ const addControlPanel = function(scene, leftLine, rightLine){
             rightAnimation.reset();
         };
         stateObservable.notifyObservers();
+        resText.text = "L_FOV = 0";
+        resText_R.text = "R_FOV = 0";
     })
 
     panel.addControl(btnL);
@@ -128,7 +130,7 @@ const addControlPanel = function(scene, leftLine, rightLine){
             case State.paused:
                 var lFOV = Math.atan(Math.abs(leftLine.position.x) / leftLine.position.z) / Math.PI * 180;
                 resText.text = `L_FOV=${lFOV.toFixed(2)}`;
-                // buttonLeft.background = "#010";
+                btnL.text = "点击继续";
                 break;
             case State.animating:
                 btnL.text = "点击停止";
@@ -146,6 +148,7 @@ const addControlPanel = function(scene, leftLine, rightLine){
             case State.paused:
                 var rFOV = Math.atan(rightLine.position.x / rightLine.position.z) / Math.PI * 180;
                 resText_R.text = `R_FOV=${rFOV.toFixed(2)}`;
+                btnR.text = "点击继续";
                 break;
             case State.animating:
                 btnR.text = "点击停止";
