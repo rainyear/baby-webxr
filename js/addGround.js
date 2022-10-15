@@ -4,14 +4,16 @@ const addGround = function(scene){
         width: 40,
         height: 40,
     });
-    const floorMat = new BABYLON.StandardMaterial("floorMat");
-    floorMat.diffuseTexture = new BABYLON.Texture("textures/wood.jpg");
-    floorMat.diffuseTexture.uScale = 10.0;
-    floorMat.diffuseTexture.vScale = 10.0;
-    // floorMat.diffuseColor = new BABYLON.Color3(.75, .75, .75);
-    // floorMat.emissiveColor = BABYLON.Color3.Gray();
+    var groundMaterial = new BABYLON.GridMaterial("groundMaterial", scene);
+    groundMaterial.majorUnitFrequency = 5;
+    groundMaterial.minorUnitVisibility = 0.5;
+    groundMaterial.gridRatio = 1;
+	// groundMaterial.opacity = 0.9;
+    groundMaterial.useMaxLine = true;
+    groundMaterial.lineColor = new BABYLON.Color3.Teal();
+    groundMaterial.mainColor = new BABYLON.Color3.Black();
 
-    ground.material = floorMat;
+    ground.material = groundMaterial;
     ground.receiveShadows = true;
 
     return ground;
